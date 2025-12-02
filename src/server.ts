@@ -1,14 +1,14 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { Pool } from "pg";
 import dotenv from "dotenv";
 import path from "path";
+import { request } from "http";
 
 dotenv.config({ path: path.join(process.cwd(), ".env") });
 const app = express();
 const port = 5000;
 //parser
 app.use(express.json());
-// app.use(express.urlencoded()); //to get from data
 
 // connect to DB
 const pool = new Pool({
@@ -45,7 +45,14 @@ const initDB = async () => {
 
 initDB();
 
-app.get("/", (req: Request, res: Response) => {
+//logger middleware
+const logger = (req: Request, res: Response, next: NextFunction) =>{
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}\n`);
+  next();
+}
+
+
+app.get("/", logger, (req: Request, res: Response) => {
   res.send("Hello next level Developer!");
 });
 
@@ -216,6 +223,14 @@ app.get("/todos", async(req: Request, res: Response)=>{
     })
   }
 })
+
+app.use((req, res)=>{
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+    path: req.path
+  });
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
