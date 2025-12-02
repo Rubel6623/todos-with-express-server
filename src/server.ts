@@ -50,7 +50,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 
-// Users CRUD
+// Users CRUD : create user
 app.post("/users", async (req: Request, res: Response) => {
   const { name, email } = req.body;
 
@@ -61,7 +61,7 @@ app.post("/users", async (req: Request, res: Response) => {
     );
     // console.log(result.rows[0]);
     res.status(201).json({
-      success: false,
+      success: true,
       message: "Data inserted successfully",
       data: result.rows[0]
     });
@@ -173,6 +173,27 @@ app.delete("/users/:id", async(req:Request, res:Response)=>{
       success: false,
       message: err.message,
       details: err
+    })
+  }
+})
+
+// todos CRUD
+app.post("/todos", async(req: Request, res: Response)=>{
+  const {user_id, title} = req.body;
+
+  try {
+    const result = await pool.query(`INSERT INTO todos(user_id, title) VALUES($1, $2) RETURNING *`, [user_id, title]);
+
+    res.status(200).json({
+      success: true,
+      message: "Todos Created Successfully...",
+      data: result.rows[0]
+    })
+
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message
     })
   }
 })
