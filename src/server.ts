@@ -177,7 +177,7 @@ app.delete("/users/:id", async(req:Request, res:Response)=>{
   }
 })
 
-// todos CRUD
+// todos: CRUD--->Create
 app.post("/todos", async(req: Request, res: Response)=>{
   const {user_id, title} = req.body;
 
@@ -194,6 +194,25 @@ app.post("/todos", async(req: Request, res: Response)=>{
     res.status(500).json({
       success: false,
       message: err.message
+    })
+  }
+});
+
+//get todos
+app.get("/todos", async(req: Request, res: Response)=>{
+  try {
+    const result = await pool.query(`SELECT * FROM todos`);
+
+    res.status(200).json({
+      success: true,
+      message: "Todos retrieved successfully",
+      data: result.rows
+    })
+  } catch (err:any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      details: err
     })
   }
 })
