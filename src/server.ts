@@ -74,6 +74,7 @@ app.post("/users", async (req: Request, res: Response) => {
   }
 });
 
+//get all users
 app.get("/users", async(req: Request, res: Response)=>{
   try {
     const result = await pool.query(`SELECT * FROM users`);
@@ -83,6 +84,34 @@ app.get("/users", async(req: Request, res: Response)=>{
       message: "Users retrieved successfully",
       data: result.rows
     })
+  } catch (err:any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      details: err
+    })
+  }
+})
+
+//single user
+app.get("/users/:id", async(req:Request, res:Response)=>{
+
+  try {
+    const result = await pool.query(`SELECT * FROM users WHERE id = $1`, [req.params.id]);
+
+    if(result.rows.length === 0){
+      res.status(404).json({
+        success: false,
+        message: "User not found..."
+      })
+    }else{
+      res.status(200).json({
+        success: true,
+        message: "User fetched successfully",
+        data: result.rows[0],
+      })
+    }
+
   } catch (err:any) {
     res.status(500).json({
       success: false,
